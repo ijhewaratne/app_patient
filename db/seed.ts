@@ -1,0 +1,278 @@
+import { getDb } from "../api/queries/connection";
+import { medications, settings } from "./schema";
+
+const db = getDb();
+
+async function seed() {
+  // Seed default settings
+  const existingSettings = await db.select().from(settings);
+  if (existingSettings.length === 0) {
+    await db.insert(settings).values({
+      doctorName: "Dr. Sample Doctor",
+      qualifications: "MBBS, MD Psychiatry",
+      registrationNumber: "SLMC-12345",
+      clinicName: "MindCare Clinic",
+      clinicAddress: "123 Galle Road, Colombo 03, Sri Lanka",
+      clinicPhone: "+94 11 234 5678",
+      letterheadText: "MindCare Clinic\n123 Galle Road, Colombo 03\nTel: +94 11 234 5678",
+      prescriptionFooter: "This is a computer-generated prescription. Please follow up as advised.",
+      googleDriveEnabled: false,
+      syncFrequency: "manual",
+      encryptBackups: true,
+      sttLanguage: "english",
+      sttAutoCorrect: true,
+      sttAiRefine: true,
+      autoSaveDrafts: true,
+    });
+    console.log("Settings seeded");
+  }
+
+  // Seed psychiatric medications
+  const existingMeds = await db.select().from(medications);
+  if (existingMeds.length === 0) {
+    const medsData = [
+      // Antidepressants - SSRIs
+      {
+        brandName: "Sertraline",
+        genericName: "Sertraline",
+        category: "antidepressant" as const,
+        availableDosages: ["25mg", "50mg", "100mg"],
+        defaultDosageAdult: "50mg",
+        defaultDosageElderly: "25mg",
+        defaultDosageChild: "25mg",
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take after breakfast. Can increase to 100mg after 2 weeks if needed.",
+      },
+      {
+        brandName: "Fluoxetine",
+        genericName: "Fluoxetine",
+        category: "antidepressant" as const,
+        availableDosages: ["10mg", "20mg", "40mg"],
+        defaultDosageAdult: "20mg",
+        defaultDosageElderly: "10mg",
+        defaultDosageChild: "10mg",
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take in the morning after breakfast. Avoid evening dose due to activation.",
+      },
+      {
+        brandName: "Escitalopram",
+        genericName: "Escitalopram",
+        category: "antidepressant" as const,
+        availableDosages: ["5mg", "10mg", "20mg"],
+        defaultDosageAdult: "10mg",
+        defaultDosageElderly: "5mg",
+        defaultDosageChild: "5mg",
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take after breakfast. Maximum 20mg daily.",
+      },
+      {
+        brandName: "Venlafaxine XR",
+        genericName: "Venlafaxine",
+        category: "antidepressant" as const,
+        availableDosages: ["37.5mg", "75mg", "150mg"],
+        defaultDosageAdult: "75mg",
+        defaultDosageElderly: "37.5mg",
+        defaultDosageChild: null,
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take with food. Do not crush or chew extended-release capsule.",
+      },
+      // Antipsychotics
+      {
+        brandName: "Risperidone",
+        genericName: "Risperidone",
+        category: "antipsychotic" as const,
+        availableDosages: ["0.5mg", "1mg", "2mg", "3mg", "4mg"],
+        defaultDosageAdult: "2mg",
+        defaultDosageElderly: "0.5mg",
+        defaultDosageChild: "0.5mg",
+        defaultFrequency: "OD / BD",
+        defaultDuration: 30,
+        defaultInstructions: "Take at the same time daily. Monitor for extrapyramidal symptoms.",
+      },
+      {
+        brandName: "Olanzapine",
+        genericName: "Olanzapine",
+        category: "antipsychotic" as const,
+        availableDosages: ["2.5mg", "5mg", "10mg"],
+        defaultDosageAdult: "5mg",
+        defaultDosageElderly: "2.5mg",
+        defaultDosageChild: null,
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take at bedtime. Monitor weight and metabolic parameters.",
+      },
+      {
+        brandName: "Quetiapine XR",
+        genericName: "Quetiapine",
+        category: "antipsychotic" as const,
+        availableDosages: ["50mg", "150mg", "200mg", "300mg"],
+        defaultDosageAdult: "150mg",
+        defaultDosageElderly: "50mg",
+        defaultDosageChild: null,
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take at bedtime without food. Can increase gradually.",
+      },
+      {
+        brandName: "Aripiprazole",
+        genericName: "Aripiprazole",
+        category: "antipsychotic" as const,
+        availableDosages: ["5mg", "10mg", "15mg", "20mg"],
+        defaultDosageAdult: "10mg",
+        defaultDosageElderly: "5mg",
+        defaultDosageChild: "5mg",
+        defaultFrequency: "OD",
+        defaultDuration: 30,
+        defaultInstructions: "Take with or without food. Akathisia is a common side effect.",
+      },
+      // Anxiolytics
+      {
+        brandName: "Alprazolam",
+        genericName: "Alprazolam",
+        category: "anxiolytic" as const,
+        availableDosages: ["0.25mg", "0.5mg", "1mg"],
+        defaultDosageAdult: "0.5mg",
+        defaultDosageElderly: "0.25mg",
+        defaultDosageChild: null,
+        defaultFrequency: "BD / TDS",
+        defaultDuration: 14,
+        defaultInstructions: "Short-term use only. Taper gradually to avoid withdrawal. Not for long-term use.",
+      },
+      {
+        brandName: "Clonazepam",
+        genericName: "Clonazepam",
+        category: "anxiolytic" as const,
+        availableDosages: ["0.25mg", "0.5mg", "1mg", "2mg"],
+        defaultDosageAdult: "0.5mg",
+        defaultDosageElderly: "0.25mg",
+        defaultDosageChild: "0.25mg",
+        defaultFrequency: "OD / BD",
+        defaultDuration: 30,
+        defaultInstructions: "Take at bedtime. Long half-life. Avoid abrupt discontinuation.",
+      },
+      {
+        brandName: "Diazepam",
+        genericName: "Diazepam",
+        category: "anxiolytic" as const,
+        availableDosages: ["2mg", "5mg", "10mg"],
+        defaultDosageAdult: "5mg",
+        defaultDosageElderly: "2mg",
+        defaultDosageChild: null,
+        defaultFrequency: "BD / TDS",
+        defaultDuration: 7,
+        defaultInstructions: "Short-term use only. Risk of dependence with prolonged use.",
+      },
+      // Mood Stabilizers
+      {
+        brandName: "Sodium Valproate",
+        genericName: "Valproate",
+        category: "mood_stabilizer" as const,
+        availableDosages: ["200mg", "300mg", "500mg"],
+        defaultDosageAdult: "500mg",
+        defaultDosageElderly: "200mg",
+        defaultDosageChild: "200mg",
+        defaultFrequency: "BD",
+        defaultDuration: 30,
+        defaultInstructions: "Take with food. Monitor liver function. Avoid in pregnancy.",
+      },
+      {
+        brandName: "Lithium Carbonate",
+        genericName: "Lithium",
+        category: "mood_stabilizer" as const,
+        availableDosages: ["300mg", "400mg"],
+        defaultDosageAdult: "400mg",
+        defaultDosageElderly: "300mg",
+        defaultDosageChild: null,
+        defaultFrequency: "BD",
+        defaultDuration: 30,
+        defaultInstructions: "Take with meals. Monitor serum lithium levels. Maintain adequate hydration.",
+      },
+      {
+        brandName: "Lamotrigine",
+        genericName: "Lamotrigine",
+        category: "mood_stabilizer" as const,
+        availableDosages: ["25mg", "50mg", "100mg", "200mg"],
+        defaultDosageAdult: "25mg",
+        defaultDosageElderly: "25mg",
+        defaultDosageChild: null,
+        defaultFrequency: "OD",
+        defaultDuration: 60,
+        defaultInstructions: "Slow titration required. Start 25mg OD for 2 weeks, then increase gradually. Watch for rash.",
+      },
+      // Sleep Aids
+      {
+        brandName: "Zolpidem",
+        genericName: "Zolpidem",
+        category: "sleep_aid" as const,
+        availableDosages: ["5mg", "10mg"],
+        defaultDosageAdult: "10mg",
+        defaultDosageElderly: "5mg",
+        defaultDosageChild: null,
+        defaultFrequency: "HS",
+        defaultDuration: 14,
+        defaultInstructions: "Take immediately before bedtime. Short-term use only (2-4 weeks max).",
+      },
+      {
+        brandName: "Melatonin",
+        genericName: "Melatonin",
+        category: "sleep_aid" as const,
+        availableDosages: ["3mg", "5mg", "10mg"],
+        defaultDosageAdult: "3mg",
+        defaultDosageElderly: "3mg",
+        defaultDosageChild: "3mg",
+        defaultFrequency: "HS",
+        defaultDuration: 30,
+        defaultInstructions: "Take 30 minutes before bedtime. Non-habit forming.",
+      },
+      // Stimulants
+      {
+        brandName: "Methylphenidate",
+        genericName: "Methylphenidate",
+        category: "stimulant" as const,
+        availableDosages: ["5mg", "10mg", "20mg"],
+        defaultDosageAdult: "10mg",
+        defaultDosageElderly: null,
+        defaultDosageChild: "5mg",
+        defaultFrequency: "OD / BD",
+        defaultDuration: 30,
+        defaultInstructions: "Take in the morning. Last dose before 4 PM to avoid insomnia. Monitor BP and growth in children.",
+      },
+      // Others
+      {
+        brandName: "Propranolol",
+        genericName: "Propranolol",
+        category: "other" as const,
+        availableDosages: ["10mg", "20mg", "40mg"],
+        defaultDosageAdult: "20mg",
+        defaultDosageElderly: "10mg",
+        defaultDosageChild: null,
+        defaultFrequency: "BD / TDS",
+        defaultDuration: 30,
+        defaultInstructions: "Take with food. Useful for performance anxiety and akathisia. Monitor heart rate.",
+      },
+      {
+        brandName: "Hydroxyzine",
+        genericName: "Hydroxyzine",
+        category: "other" as const,
+        availableDosages: ["10mg", "25mg"],
+        defaultDosageAdult: "25mg",
+        defaultDosageElderly: "10mg",
+        defaultDosageChild: "10mg",
+        defaultFrequency: "TDS",
+        defaultDuration: 14,
+        defaultInstructions: "Can cause drowsiness. Non-addictive anxiolytic. Antihistamine properties.",
+      },
+    ];
+
+    await db.insert(medications).values(medsData);
+    console.log(`${medsData.length} medications seeded`);
+  }
+
+  console.log("Seed complete!");
+}
+
+seed().catch(console.error);
