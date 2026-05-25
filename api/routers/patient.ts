@@ -139,7 +139,9 @@ export const patientRouter = createRouter({
 
       const prescriptionsWithItems = prescriptionsResult.map((rx) => ({
         ...rx,
-        items: allItems.filter((i) => i.item.prescriptionId === rx.id),
+        items: allItems
+          .filter((i) => i.item.prescriptionId === rx.id)
+          .map((i) => ({ ...i.item })),
       }));
 
       // Get patient summary
