@@ -50,6 +50,7 @@ export const consultations = mysqlTable("consultations", {
   id: serial("id").primaryKey(),
   patientId: bigint("patient_id", { mode: "number", unsigned: true }).notNull(),
   doctorId: bigint("doctor_id", { mode: "number", unsigned: true }),
+  clinicId: bigint("clinic_id", { mode: "number", unsigned: true }),
   visitDate: date("visit_date").notNull(),
   visitType: mysqlEnum("visit_type", ["initial", "follow_up"]).default("initial"),
   ageAtVisit: int("age_at_visit"),
@@ -123,6 +124,7 @@ export const prescriptions = mysqlTable("prescriptions", {
   patientId: bigint("patient_id", { mode: "number", unsigned: true }).notNull(),
   consultationId: bigint("consultation_id", { mode: "number", unsigned: true }).notNull(),
   doctorId: bigint("doctor_id", { mode: "number", unsigned: true }),
+  clinicId: bigint("clinic_id", { mode: "number", unsigned: true }),
   prescriptionDate: date("prescription_date").notNull(),
   ageAtPrescription: int("age_at_prescription"),
   status: mysqlEnum("status", ["draft", "confirmed", "printed"]).default("draft"),
@@ -177,6 +179,7 @@ export const clinicSettings = mysqlTable("clinic_settings", {
   doctorRegistrationNumber: varchar("doctor_registration_number", { length: 100 }),
   prescriptionFooter: text("prescription_footer"),
   prescriptionPaperSize: mysqlEnum("prescription_paper_size", ["A4", "A5"]).default("A4"),
+  logoUrl: text("logo_url"),
   updatedAt: timestamp("updated_at").defaultNow().onUpdateNow(),
 });
 

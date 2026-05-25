@@ -90,6 +90,7 @@ export const prescriptionRouter = createRouter({
         patientId: z.number(),
         consultationId: z.number(),
         doctorId: z.number().optional(),
+        clinicId: z.number().optional(),
         ageAtPrescription: z.number().optional(),
         nextReviewDate: z.string().optional(),
       })
@@ -102,6 +103,7 @@ export const prescriptionRouter = createRouter({
         patientId: input.patientId,
         consultationId: input.consultationId,
         doctorId: input.doctorId ?? null,
+        clinicId: input.clinicId ?? null,
         prescriptionDate: new Date(),
         ageAtPrescription: input.ageAtPrescription ?? null,
         nextReviewDate: input.nextReviewDate
@@ -216,7 +218,10 @@ export const prescriptionRouter = createRouter({
 
       const consultation = consultationResult[0];
 
-      const clinicResult = await db.select().from(clinicSettings);
+      // Use the clinic linked to the prescription, fall back to the first clinic
+      const clinicResult = rx.clinicId
+        ? await db.select().from(clinicSettings).where(eq(clinicSettings.id, rx.clinicId))
+        : await db.select().from(clinicSettings);
       const clinic = clinicResult[0];
 
       const itemsResult = await db
@@ -239,6 +244,7 @@ export const prescriptionRouter = createRouter({
           clinicName: clinic?.clinicName ?? "MindCare Clinic",
           clinicAddress: clinic?.clinicAddress ?? "",
           clinicPhone: clinic?.clinicPhone ?? "",
+          logoUrl: clinic?.logoUrl ?? null,
         },
         patient: {
           name: patient?.fullName ?? "",

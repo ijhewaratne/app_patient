@@ -60,6 +60,7 @@ export const consultationRouter = createRouter({
       z.object({
         patientId: z.number(),
         doctorId: z.number().optional(),
+        clinicId: z.number().optional(),
         visitDate: z.string().optional(),
         visitType: z.enum(["initial", "follow_up"]).default("initial"),
         ageAtVisit: z.number().optional(),
@@ -73,6 +74,7 @@ export const consultationRouter = createRouter({
       const result = await db.insert(consultations).values({
         patientId: input.patientId,
         doctorId: input.doctorId ?? null,
+        clinicId: input.clinicId ?? null,
         visitDate: input.visitDate ? new Date(input.visitDate) : new Date(),
         visitType: input.visitType,
         ageAtVisit: input.ageAtVisit ?? null,
@@ -118,6 +120,21 @@ export const consultationRouter = createRouter({
         .select()
         .from(consultations)
         .where(eq(consultations.id, id));
+      return updated[0];
+    }),
+
+  confirm: publicQuery
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = getDb();
+      await db
+        .update(consultations)
+        .set({ status: "confirmed", confirmedAt: new Date() })
+        .where(eq(consultations.id, input.id));
+      const updated = await db
+        .select()
+        .from(consultations)
+        .where(eq(consultations.id, input.id));
       return updated[0];
     }),
 

@@ -36,6 +36,7 @@ export const patientRouter = createRouter({
       z
         .object({
           search: z.string().optional(),
+          dob: z.string().optional(),
           status: z.string().optional(),
           page: z.number().default(1),
           limit: z.number().default(20),
@@ -55,6 +56,10 @@ export const patientRouter = createRouter({
             like(patients.phone, searchTerm)
           )
         );
+      }
+
+      if (input?.dob) {
+        conditions.push(eq(patients.dateOfBirth, new Date(input.dob)));
       }
 
       if (input?.status && input.status !== "all") {
@@ -235,16 +240,24 @@ export const patientRouter = createRouter({
     .query(async ({ input }) => {
       const db = getDb();
       const searchTerm = `%${input.query}%`;
+      // Support DOB search: if input looks like a date (YYYY-MM-DD), search by DOB too
+      const dobCondition = /^\d{4}-\d{2}-\d{2}$/.test(input.query)
+        ? eq(patients.dateOfBirth, new Date(input.query))
+        : undefined;
+
+      const conditions = [
+        or(
+          like(patients.fullName, searchTerm),
+          like(patients.patientId, searchTerm),
+          like(patients.phone, searchTerm)
+        ),
+      ];
+      if (dobCondition) conditions.push(dobCondition);
+
       return db
         .select()
         .from(patients)
-        .where(
-          or(
-            like(patients.fullName, searchTerm),
-            like(patients.patientId, searchTerm),
-            like(patients.phone, searchTerm)
-          )
-        )
+        .where(or(...conditions))
         .limit(10);
     }),
 });
